@@ -90,12 +90,28 @@ func TestReadEndpointsDoNotRequireToken(t *testing.T) {
 	// Back with an empty App so GET handlers run without a nil-App panic; the
 	// point of the test is that no 401 is returned for reads.
 	s := New(&app.App{})
-	for _, path := range []string{"/api/session-token", "/api/plugins", "/api/apps"} {
+	for _, path := range []string{"/api/session-token", "/api/plugins", "/api/apps", "/api/profile"} {
 		req := httptest.NewRequest(http.MethodGet, "http://127.0.0.1:8696"+path, nil)
 		res := httptest.NewRecorder()
 		s.ServeHTTP(res, req)
 		if res.Code == http.StatusUnauthorized {
 			t.Fatalf("GET %s required a token", path)
+		}
+	}
+}
+
+func TestProfileEndpointReturnsTargetPC(t *testing.T) {
+	s := New(&app.App{})
+	req := httptest.NewRequest(http.MethodGet, "http://127.0.0.1:8696/api/profile", nil)
+	res := httptest.NewRecorder()
+	s.ServeHTTP(res, req)
+	if res.Code != http.StatusOK {
+		t.Fatalf("status = %d, want %d; body = %s", res.Code, http.StatusOK, res.Body.String())
+	}
+	body := res.Body.String()
+	for _, want := range []string{"DESKTOP-HI525Q3", "Windows 11 Pro Insider Preview", "29648.1000", "NVIDIA GeForce MX330", "storageFreeGb"} {
+		if !strings.Contains(body, want) {
+			t.Fatalf("profile response missing %q: %s", want, body)
 		}
 	}
 }

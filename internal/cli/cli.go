@@ -26,6 +26,7 @@ import (
 	"winforge/internal/isobuilder"
 	"winforge/internal/maintenance"
 	"winforge/internal/platform"
+	"winforge/internal/profile"
 	"winforge/internal/restorepoint"
 	"winforge/internal/tweak"
 	"winforge/internal/updater"
@@ -118,6 +119,8 @@ func Run(args []string) error {
 		return historyCmd()
 	case "plugins":
 		return pluginsCmd()
+	case "profile", "target":
+		return profileCmd()
 	case "install":
 		return installCmd(args[1:])
 	case "search":
@@ -176,6 +179,7 @@ Usage:
   winforge undo   --id <id>
   winforge history         show the operation history
   winforge plugins         list installed plugins
+  winforge profile         show the target Windows 11 PC profile
   winforge install --id <winget-id>
   winforge search  <query>
   winforge restore-point [--description "…"]
@@ -375,6 +379,27 @@ func pluginsCmd() error {
 	}
 	for _, p := range a.Plugins {
 		fmt.Fprintf(out, "%-24s v%-10s %3d tweaks  %s\n", p.ID, p.Version, len(p.Tweaks), p.Name)
+	}
+	return nil
+}
+
+func profileCmd() error {
+	p := profile.Target
+	fmt.Fprintf(out, "Target PC: %s\n", p.DeviceName)
+	fmt.Fprintf(out, "OS: %s %s build %s\n", p.OperatingSystem.Edition, p.OperatingSystem.Version, p.OperatingSystem.Build)
+	fmt.Fprintf(out, "Installed on: %s\n", p.OperatingSystem.InstalledOn)
+	fmt.Fprintf(out, "Evaluation expires: %s\n", p.OperatingSystem.EvaluationExpires)
+	fmt.Fprintf(out, "Experience: %s\n", p.OperatingSystem.Experience)
+	fmt.Fprintf(out, "Processor: %s\n", p.Hardware.Processor)
+	fmt.Fprintf(out, "RAM: %.1f GB (%.1f GB usable)\n", p.Hardware.RAMGB, p.Hardware.UsableRAMGB)
+	fmt.Fprintf(out, "Graphics: %s\n", strings.Join(p.Hardware.Graphics, " + "))
+	fmt.Fprintf(out, "Storage: %d GB used of %d GB (%d GB free, %d%% used)\n",
+		p.Hardware.StorageUsedGB, p.Hardware.StorageTotalGB, profile.StorageFreeGB(p), profile.StorageUsagePercent(p))
+	fmt.Fprintln(out, "Recommended presets:", strings.Join(p.RecommendedPresets, ", "))
+	fmt.Fprintln(out, "Avoid presets:", strings.Join(p.AvoidPresets, ", "))
+	fmt.Fprintln(out, "Optimization focus:")
+	for _, item := range p.OptimizationFocus {
+		fmt.Fprintf(out, "  - %s\n", item)
 	}
 	return nil
 }

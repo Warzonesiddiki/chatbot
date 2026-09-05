@@ -28,6 +28,7 @@ import (
 	"winforge/internal/isobuilder"
 	"winforge/internal/maintenance"
 	"winforge/internal/platform"
+	"winforge/internal/profile"
 	"winforge/internal/restorepoint"
 	"winforge/internal/tweak"
 	"winforge/internal/updater"
@@ -104,6 +105,7 @@ func (s *Server) routes() *http.ServeMux {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("GET /api/status", s.handleStatus)
+	mux.HandleFunc("GET /api/profile", s.handleProfile)
 	mux.HandleFunc("GET /api/health", s.handleHealth)
 	mux.HandleFunc("GET /api/session-token", s.handleSessionToken)
 	mux.HandleFunc("GET /api/tweaks", s.handleListTweaks)
@@ -445,6 +447,17 @@ func (s *Server) handleStatus(w http.ResponseWriter, _ *http.Request) {
 		"tweakCount":     len(s.App.Tweaks),
 		"pluginCount":    len(s.App.Plugins),
 		"bloatwareCount": s.App.BloatwareCount(),
+		"targetProfile":  profile.Target,
+	})
+}
+
+func (s *Server) handleProfile(w http.ResponseWriter, _ *http.Request) {
+	p := profile.Target
+	writeJSON(w, http.StatusOK, map[string]any{
+		"profile":        p,
+		"summary":        profile.Summary(p),
+		"storageFreeGb":  profile.StorageFreeGB(p),
+		"storageUsedPct": profile.StorageUsagePercent(p),
 	})
 }
 

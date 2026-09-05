@@ -81,11 +81,30 @@ function loadView(name) {
 // ---- Dashboard ----
 async function loadStatus() {
   const s = await api("/api/status");
+  const target = s.targetProfile;
   $("#version").textContent = "v" + s.version;
-  $("#os-name").textContent = s.os.productName || s.os.os;
+  $("#os-name").textContent = target?.operatingSystem?.build || s.os.productName || s.os.os;
+  renderTargetProfile(target);
   const pill = $("#elevation");
   if (s.elevated) { pill.textContent = "Administrator"; pill.classList.add("ok"); }
   else { pill.textContent = "Not elevated"; pill.classList.add("warn"); }
+}
+
+function renderTargetProfile(target) {
+  const el = $("#target-profile");
+  if (!el || !target) return;
+  const hw = target.hardware || {};
+  const os = target.operatingSystem || {};
+  const free = (hw.storageTotalGb || 0) - (hw.storageUsedGb || 0);
+  const usedPct = hw.storageTotalGb ? Math.round((hw.storageUsedGb / hw.storageTotalGb) * 100) : 0;
+  el.innerHTML = `
+    <div class="row"><span>Device</span><span>${esc(target.deviceName)}</span></div>
+    <div class="row"><span>Windows</span><span>${esc(os.edition)} ${esc(os.version)} build ${esc(os.build)}</span></div>
+    <div class="row"><span>Processor</span><span>${esc(hw.processor)}</span></div>
+    <div class="row"><span>RAM</span><span>${esc(hw.ramGb)} GB (${esc(hw.usableRamGb)} GB usable)</span></div>
+    <div class="row"><span>Graphics</span><span>${esc((hw.graphics || []).join(" + "))}</span></div>
+    <div class="row"><span>Storage</span><span>${esc(hw.storageUsedGb)} GB used of ${esc(hw.storageTotalGb)} GB (${free} GB free, ${usedPct}% used)</span></div>
+    <p class="muted">Focus: safe Dev Channel privacy, balanced i7-10510U performance, protected NVIDIA MX330/Intel hybrid graphics, and reversible changes.</p>`;
 }
 
 async function loadDashboard() {

@@ -97,6 +97,23 @@ func TestRunRejectsUnknownCommand(t *testing.T) {
 
 // TestRunHelpAndVersion pins the two verbs that must always succeed without
 // touching machine state.
+func TestRunProfilePrintsTargetMachine(t *testing.T) {
+	for _, arg := range []string{"profile", "target"} {
+		t.Run(arg, func(t *testing.T) {
+			var err error
+			output := captureOutput(t, func() { err = Run([]string{arg}) })
+			if err != nil {
+				t.Fatalf("Run(%q) = %v, want nil", arg, err)
+			}
+			for _, want := range []string{"DESKTOP-HI525Q3", "Windows 11 Pro Insider Preview", "29648.1000", "i7-10510U", "NVIDIA GeForce MX330", "331 GB free"} {
+				if !strings.Contains(output, want) {
+					t.Fatalf("profile output missing %q: %q", want, output)
+				}
+			}
+		})
+	}
+}
+
 func TestRunHelpAndVersion(t *testing.T) {
 	for _, arg := range []string{"help", "--help", "-h"} {
 		t.Run(arg, func(t *testing.T) {

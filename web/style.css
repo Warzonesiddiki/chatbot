@@ -82,9 +82,10 @@ h2 { font-size: 16px; margin: 26px 0 12px; color: var(--muted); }
 .meter { height: 8px; background: var(--panel-2); border-radius: 999px; margin-top: 14px; overflow: hidden; }
 .meter-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); width: 0; transition: width .4s; }
 
-.breakdown { margin-top: 4px; }
-.breakdown .row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid var(--border); }
-.breakdown .row:last-child { border-bottom: none; }
+.breakdown, .target-profile { margin-top: 4px; }
+.breakdown .row, .target-profile .row { display: flex; justify-content: space-between; gap: 16px; padding: 7px 0; border-bottom: 1px solid var(--border); }
+.breakdown .row:last-child, .target-profile .row:last-child { border-bottom: none; }
+.target-profile .row span:last-child { text-align: right; }
 
 /* Tweaks */
 .tweak-category { margin: 20px 0 10px; color: var(--muted); font-size: 13px; text-transform: uppercase; letter-spacing: .05em; }

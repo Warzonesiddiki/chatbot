@@ -20,6 +20,7 @@ Download the latest `winforge.exe` from the
 
 # Or use the CLI:
 .\winforge.exe scan                                        # health score
+.\winforge.exe profile                                     # target PC profile
 .\winforge.exe list                                        # all tweaks
 .\winforge.exe apply --id tel-disable-telemetry --dry-run  # preview
 .\winforge.exe apply --id tel-disable-telemetry            # apply
@@ -72,6 +73,10 @@ consistent.
 - **Goal**: Migrate to native WPF/.NET 8 Windows utility (self-contained EXE with real Registry/WMI/Appx/DISM operations)
 - **Inspiration**: Chris Titus Tech's Windows Utility (30M+ runs, 6 years, 200+ contributors)
 - **Distribution model**: Signed EXE (`irm domain.com/win | iex`) or Inno Setup installer
+
+## Target PC Focus
+
+This branch is tuned for the requested Windows 11 machine: `DESKTOP-HI525Q3`, Windows 11 Pro Insider Preview Dev build `29648.1000`, Intel Core i7-10510U, 20 GB RAM, NVIDIA GeForce MX330 + Intel UHD hybrid graphics, and a 466 GB system disk with 135 GB used. The dashboard and `winforge profile` command expose this profile so recommendations stay focused on safe, reversible changes for that hardware.
 
 ## Features Dashboard
 
@@ -176,6 +181,7 @@ consistent.
 |----------|-------------|
 | `GET /api/health` | Health check |
 | `GET /api/metrics` | Live system telemetry (real data) |
+| `GET /api/target-profile` | Target Windows 11 PC profile for this build |
 | `GET /api/privacy/audit` | HTML privacy audit report |
 | `GET /api/history/export` | CSV operation history export |
 | `GET /api/cli` | CLI documentation |
